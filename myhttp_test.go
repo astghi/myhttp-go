@@ -2,8 +2,8 @@ package main
 
 import (
     "testing"
-//    "fmt"
     "errors"
+    "strings"
 )
 
 func TestFormatUrl(t *testing.T) {
@@ -14,7 +14,7 @@ func TestFormatUrl(t *testing.T) {
     }
 }
 
-func TestGetEncodedResponse(t *testing.T) {
+func TestRequestAndGetEncodedResponse(t *testing.T) {
     validUrl := "http://adjust.com"
     incompleteUrl := "adjust.com"
     invalidUrl := "http://bellakio.com"
@@ -29,52 +29,37 @@ func TestGetEncodedResponse(t *testing.T) {
     _, invalidUrlError := GetEncodedResponse(invalidUrl)
     
     expectedInvalidUrlError := errors.New("Failed to request the url: " + invalidUrl)
-    if invalidUrlError != expectedInvalidUrlError {
+    if invalidUrlError.Error() != expectedInvalidUrlError.Error() {
         t.Errorf("Failed to throw an error, got: %s, want: %s.", invalidUrlError, expectedInvalidUrlError)
     }
 }
 
 func TestMakeRequests(t *testing.T) {
-    testData := []struct {
-		urls[] string
-		concurrencyLimit int
-		expectedResult[] string
-	}{
-		{
-            ["http://google.com", "http://reddit.com/r/notfunny"], 
-            2, 
-            [
-                ("http://google.com c64ad8d1822553328b0cca7c6154ceae", nil)
-                ("http://reddit.com/r/notfunny 5a088861dbb7bd828803388d086ec52d", nil)
-            ]
-        },
         
-        {
-            ["http://google.com", "http://reddit.com/r/notfunny"], 
-            0, 
-            [
-                ("http://google.com c64ad8d1822553328b0cca7c6154ceae", nil)
-                ("http://reddit.com/r/notfunny 5a088861dbb7bd828803388d086ec52d", nil)
-            ]
-        
-        },
-        
-        {
-            ["http://google.com", "https://rrrrreddit.com/r/notfunny"], 
-            3, 
-            [
-                ("http://google.com c64ad8d1822553328b0cca7c6154ceae", nil)
-                ("", errors.New("Failed to read the responce from url: https://rrrrreddit.com/r/notfunny"))
-            ]
-        
-        },
-	}
+    requestError := errors.New("Failed to request the url: https://rrrrreddit.com/r/notfunny")
     
-	for _, data := range testData {
-        actualResult = MakeRequests(data.urls, data.concurrencyLimit)
+    validUrls := []string{"http://google.com", "http://reddit.com/r/notfunny"}
+    urlsWithError := []string{"https://rrrrreddit.com/r/notfunny"}
+    
+    validUrlWithParallelResults := MakeRequests(validUrls, 2)
+    validUrlWithoutParallelResults := MakeRequests(validUrls, 0)
+    invalidUrlResults := MakeRequests(urlsWithError, 0)
         
-		if actualResult != expectedResult {
-			t.Errorf("Request results were incorrect, got: %v, want: %v.", actualResult, data.expectedResult)
-		}
-	}
+    for i, result := range validUrlWithParallelResults {
+        if ((strings.HasPrefix(result.res, validUrls[i]) != true)  || (result.err != nil)) {
+			t.Errorf("[valid urls with limit] Request results were incorrect, urls: %v, results: %v.", validUrls, validUrlWithParallelResults)
+        }
+    } 
+    
+    for i, result := range validUrlWithoutParallelResults {
+        if ((strings.HasPrefix(result.res, validUrls[i]) != true) || (result.err != nil)) {
+			t.Errorf("[valid urls without limit] Request results were incorrect, urls: %v, results: %v.", validUrls, validUrlWithParallelResults)
+        }
+    }
+    
+    for _, result := range invalidUrlResults {
+        if (result.err.Error() != requestError.Error()) {
+			t.Errorf("[invalid urls without limit] Request results were incorrect, got: %s, want: %s.", result.err.Error(), requestError.Error())
+        }
+    }
 }
