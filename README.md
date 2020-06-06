@@ -19,10 +19,5 @@ Important here is that before we pass the url to the get function we format it. 
 
 Unit tests are in `myhttp_test.go` for each of the functions. I am sure there is a more beautiful way of supplying the test data to the test. But I didn't manage to have time to go through it in go.
 
-# If
-
-Because of my other commitments I had literally two days to learn golang and implement this tool. So I am sure in a couple of days I will have a lot of comments if I had to review my code. First there is no object oriented approach demonstrated. I simply didn't have the time to go over how it is done in go. 
-So sorry for some mess you will see, like error handling I believe.
-
-# thanks
-for the opportunity. I had a lot of fun implementing this tool and learning *to go*. 
+# Improve
+Error handling
